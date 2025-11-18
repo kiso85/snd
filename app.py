@@ -183,7 +183,7 @@ if df is not None:
         st.plotly_chart(fig, use_container_width=True)
         
         # --- High Usage Anomalies Table ---
-        st.subheader("High Usage Anomalies (Values > 2x Average)")
+        st.subheader("High Usage Anomalies")
         
         anomalies_list = []
         for col in selected_columns:
