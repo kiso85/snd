@@ -149,6 +149,31 @@ if df is not None:
             height=600
         )
         
+        # --- Highlight Maxima ---
+        # Iterate through each selected sector to find and plot its peak
+        for sector in selected_columns:
+            # Filter for this sector
+            sector_data = melted_df[melted_df['Sector'] == sector]
+            
+            if not sector_data.empty:
+                # Find the max value
+                max_val = sector_data['Energy (kWh)'].max()
+                
+                # Find the row(s) with the max value
+                max_points = sector_data[sector_data['Energy (kWh)'] == max_val]
+                
+                # Add a scatter trace for the max point(s)
+                fig.add_scatter(
+                    x=max_points['Date/Time'],
+                    y=max_points['Energy (kWh)'],
+                    mode='markers+text',
+                    marker=dict(color='red', size=12, symbol='star'), # Red star
+                    text=[f"Max: {v:.1f}" for v in max_points['Energy (kWh)']],
+                    textposition="top center",
+                    name=f"{sector} Max",
+                    showlegend=False 
+                )
+
         # Update layout to show detailed time on hover
         fig.update_layout(
             xaxis_title="Time", 
