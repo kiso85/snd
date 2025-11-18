@@ -152,17 +152,11 @@ if df is not None:
         # --- Highlight Maxima ---
         # Iterate through each selected sector to find and plot its peak
         for sector in selected_columns:
-            # Filter for this sector
             sector_data = melted_df[melted_df['Sector'] == sector]
-            
             if not sector_data.empty:
-                # Find the max value
                 max_val = sector_data['Energy (kWh)'].max()
-                
-                # Find the row(s) with the max value
                 max_points = sector_data[sector_data['Energy (kWh)'] == max_val]
                 
-                # Add a scatter trace for the max point(s)
                 fig.add_scatter(
                     x=max_points['Date/Time'],
                     y=max_points['Energy (kWh)'],
@@ -181,7 +175,6 @@ if df is not None:
             hovermode="x unified"
         )
 
-        # Customize the hover timestamp format based on frequency
         if selected_freq in [None, 'h']:
             fig.update_xaxes(hoverformat="%Y-%m-%d %H:%M")
         else:
@@ -189,6 +182,43 @@ if df is not None:
 
         st.plotly_chart(fig, use_container_width=True)
         
+        # --- High Usage Anomalies Table ---
+        st.subheader("High Usage Anomalies (Values > 2x Average)")
+        
+        anomalies_list = []
+        for col in selected_columns:
+            # Calculate average for the currently displayed data
+            avg_val = plot_df[col].mean()
+            threshold = 2 * avg_val
+            
+            # Filter rows where value is > 2x average
+            high_points = plot_df[plot_df[col] > threshold].copy()
+            
+            if not high_points.empty:
+                # Add context columns
+                high_points['Sector'] = col
+                high_points['Average'] = avg_val
+                high_points['Threshold (2x Avg)'] = threshold
+                high_points = high_points.rename(columns={col: 'Value'})
+                
+                # Keep relevant columns
+                anomalies_list.append(high_points[['Date/Time', 'Sector', 'Value', 'Average', 'Threshold (2x Avg)']])
+        
+        if anomalies_list:
+            all_anomalies = pd.concat(anomalies_list).sort_values('Date/Time')
+            
+            # Format the table for display
+            st.dataframe(
+                all_anomalies.style.format({
+                    'Value': '{:.2f}',
+                    'Average': '{:.2f}',
+                    'Threshold (2x Avg)': '{:.2f}'
+                }),
+                use_container_width=True
+            )
+        else:
+            st.info("No values found exceeding 2x the average for the selected period/sectors.")
+
         # --- Statistics ---
         st.subheader("Summary Statistics")
         st.dataframe(plot_df[selected_columns].describe())
