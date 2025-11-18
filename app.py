@@ -189,7 +189,7 @@ if df is not None:
         for col in selected_columns:
             # Calculate average for the currently displayed data
             avg_val = plot_df[col].mean()
-            threshold = 2 * avg_val
+            threshold = 3 * avg_val
             
             # Filter rows where value is > 2x average
             high_points = plot_df[plot_df[col] > threshold].copy()
