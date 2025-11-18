@@ -149,7 +149,19 @@ if df is not None:
             height=600
         )
         
-        fig.update_layout(xaxis_title="Time", yaxis_title="Energy (kWh)")
+        # Update layout to show detailed time on hover
+        fig.update_layout(
+            xaxis_title="Time", 
+            yaxis_title="Energy (kWh)",
+            hovermode="x unified"
+        )
+
+        # Customize the hover timestamp format based on frequency
+        if selected_freq in [None, 'h']:
+            fig.update_xaxes(hoverformat="%Y-%m-%d %H:%M")
+        else:
+            fig.update_xaxes(hoverformat="%Y-%m-%d")
+
         st.plotly_chart(fig, use_container_width=True)
         
         # --- Statistics ---
